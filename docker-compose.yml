@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  product-management-api:
+    build: .
+    container_name: product-api-container
+    ports:
+      - '8082:8082'  # Asumiendo que configuraste el server.port=8082 en Spring
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - portfolio_default
+
+networks:
+  portfolio_default:
+    external: true
