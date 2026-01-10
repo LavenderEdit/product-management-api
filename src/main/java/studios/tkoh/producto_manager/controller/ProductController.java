@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import studios.tkoh.producto_manager.dto.MovementRequest;
+import studios.tkoh.producto_manager.dto.MovementResponseDTO;
 import studios.tkoh.producto_manager.dto.PersonDTO;
 import studios.tkoh.producto_manager.dto.ProductExcelDTO;
 import studios.tkoh.producto_manager.dto.ProductRequest;
@@ -53,6 +53,11 @@ public class ProductController {
             @RequestBody MovementRequest request
     ) {
         return ResponseEntity.ok(productService.adjustStock(id, request));
+    }
+
+    @GetMapping("/products/{id}/movements")
+    public ResponseEntity<List<MovementResponseDTO>> getMovements(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.getProductMovements(id));
     }
 
     @GetMapping("/personnel/search")
