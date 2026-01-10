@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import studios.tkoh.producto_manager.dto.MovementRequest;
+import studios.tkoh.producto_manager.dto.MovementResponseDTO;
 import studios.tkoh.producto_manager.dto.PersonDTO;
 import studios.tkoh.producto_manager.dto.ProductExcelDTO;
 import studios.tkoh.producto_manager.dto.ProductRequest;
@@ -134,6 +135,21 @@ public class ProductServiceImpl implements ProductService {
             return new ArrayList<>();
         }
         return movementRepository.searchPersonnel(query);
+    }
+
+    @Override
+    public List<MovementResponseDTO> getProductMovements(Long productId) {
+        return movementRepository.findByProductIdOrderByDateDesc(productId).stream()
+                .map(m -> new MovementResponseDTO(
+                m.getId(),
+                m.getType(),
+                m.getQuantity(),
+                m.getReason(),
+                m.getDate(),
+                m.getReceiverName(),
+                m.getReceiverRole()
+        ))
+                .collect(Collectors.toList());
     }
 
     @Override
