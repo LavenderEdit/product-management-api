@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import studios.tkoh.producto_manager.dto.MovementRequest;
+import studios.tkoh.producto_manager.dto.PersonDTO;
 import studios.tkoh.producto_manager.dto.ProductExcelDTO;
 import studios.tkoh.producto_manager.dto.ProductRequest;
 import studios.tkoh.producto_manager.dto.ProductResponseDTO;
@@ -45,14 +47,17 @@ public class ProductController {
         return ResponseEntity.ok(productService.createProductsBatch(batchRequest));
     }
 
-    @PutMapping("/products/{id}/movement")
+    @PostMapping("/products/{id}/movement")
     public ResponseEntity<ProductResponseDTO> moveStock(
             @PathVariable Long id,
-            @RequestParam String type,
-            @RequestParam Integer qty,
-            @RequestParam String reason
+            @RequestBody MovementRequest request
     ) {
-        return ResponseEntity.ok(productService.adjustStock(id, type, qty, reason));
+        return ResponseEntity.ok(productService.adjustStock(id, request));
+    }
+
+    @GetMapping("/personnel/search")
+    public ResponseEntity<List<PersonDTO>> searchPersonnel(@RequestParam String query) {
+        return ResponseEntity.ok(productService.searchPersonnel(query));
     }
 
     @GetMapping("/alerts")
