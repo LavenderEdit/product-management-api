@@ -15,9 +15,11 @@ public interface ProductService {
 
     List<ProductResponseDTO> createProductsBatch(List<ProductRequest> requests);
 
-    ProductResponseDTO adjustStock(Long productId, String type, Integer quantity, String reason);
+    ProductResponseDTO adjustStock(Long productId, MovementRequest request);
 
     List<ProductResponseDTO> getLowStockAlerts();
 
     List<ProductExcelDTO> getExcelReportData();
+
+    List<PersonDTO> searchPersonnel(String query);
 }
