@@ -1,5 +1,6 @@
 package studios.tkoh.producto_manager.service.impl;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,10 +8,14 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import studios.tkoh.producto_manager.dto.MovementRequest;
+import studios.tkoh.producto_manager.dto.PersonDTO;
 import studios.tkoh.producto_manager.dto.ProductExcelDTO;
 import studios.tkoh.producto_manager.dto.ProductRequest;
 import studios.tkoh.producto_manager.dto.ProductResponseDTO;
+import studios.tkoh.producto_manager.model.Movement;
 import studios.tkoh.producto_manager.model.Product;
+import studios.tkoh.producto_manager.repository.MovementRepository;
 import studios.tkoh.producto_manager.repository.ProductRepository;
 import studios.tkoh.producto_manager.service.ProductService;
 
@@ -23,6 +28,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private MovementRepository movementRepository;
 
     @Override
     public List<ProductResponseDTO> getAllProducts() {
@@ -87,20 +95,45 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductResponseDTO adjustStock(Long productId, String type, Integer quantity, String reason) {
+    public ProductResponseDTO adjustStock(Long productId, MovementRequest request) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
-        if ("IN".equalsIgnoreCase(type)) {
-            product.addStock(quantity);
-        } else if ("OUT".equalsIgnoreCase(type)) {
-            product.removeStock(quantity);
+        if ("OUT".equalsIgnoreCase(request.getType())) {
+            if (request.getReceiverRole() == null || request.getReceiverRole().trim().isEmpty()) {
+                throw new IllegalArgumentException("El CARGO es obligatorio para retiros de producto.");
+            }
+
+            product.removeStock(request.getQuantity());
+        } else if ("IN".equalsIgnoreCase(request.getType())) {
+            product.addStock(request.getQuantity());
         } else {
             throw new IllegalArgumentException("Tipo de movimiento inválido. Use 'IN' o 'OUT'");
         }
 
-        Product saved = productRepository.save(product);
-        return mapToResponseDTO(saved);
+        Product savedProduct = productRepository.save(product);
+
+        Movement movement = Movement.builder()
+                .product(savedProduct)
+                .type(request.getType().toUpperCase())
+                .quantity(request.getQuantity())
+                .reason(request.getReason())
+                .date(LocalDateTime.now())
+                .receiverName(request.getReceiverName())
+                .receiverRole(request.getReceiverRole())
+                .build();
+
+        movementRepository.save(movement);
+
+        return mapToResponseDTO(savedProduct);
+    }
+
+    @Override
+    public List<PersonDTO> searchPersonnel(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        return movementRepository.searchPersonnel(query);
     }
 
     @Override
@@ -121,7 +154,6 @@ public class ProductServiceImpl implements ProductService {
                     dto.setUnidad(product.getUnit());
                     dto.setCantidadActual(product.getStock());
 
-                    // Lógica visual para el Excel
                     if (product.getStock() == 0) {
                         dto.setEstadoInventario("AGOTADO");
                     } else if (product.getStock() <= product.getMinStock()) {
