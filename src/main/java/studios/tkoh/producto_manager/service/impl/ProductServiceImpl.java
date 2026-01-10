@@ -189,6 +189,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<MovementExcelDTO> getMovementReportData() {
         return movementRepository.findAll(Sort.by(Sort.Direction.DESC, "date")).stream()
                 .map(m -> {
