@@ -21,6 +21,8 @@ public interface ProductService {
 
     List<ProductExcelDTO> getExcelReportData();
 
+    List<MovementExcelDTO> getMovementReportData();
+
     List<PersonDTO> searchPersonnel(String query);
 
     List<MovementResponseDTO> getProductMovements(Long productId);

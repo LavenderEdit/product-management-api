@@ -3,15 +3,14 @@ package studios.tkoh.producto_manager.controller;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import studios.tkoh.producto_manager.dto.MovementExcelDTO;
 import studios.tkoh.producto_manager.dto.MovementRequest;
 import studios.tkoh.producto_manager.dto.MovementResponseDTO;
 import studios.tkoh.producto_manager.dto.PersonDTO;
@@ -26,7 +25,6 @@ import studios.tkoh.producto_manager.service.ProductService;
  */
 @RestController
 @RequestMapping("/api/kardex")
-@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 public class ProductController {
 
     @Autowired
@@ -73,5 +71,10 @@ public class ProductController {
     @GetMapping("/reports/excel-data")
     public ResponseEntity<List<ProductExcelDTO>> getExcelData() {
         return ResponseEntity.ok(productService.getExcelReportData());
+    }
+
+    @GetMapping("/reports/movements-data")
+    public ResponseEntity<List<MovementExcelDTO>> getMovementsExcelData() {
+        return ResponseEntity.ok(productService.getMovementReportData());
     }
 }

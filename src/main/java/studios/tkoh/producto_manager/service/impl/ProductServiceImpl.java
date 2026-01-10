@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import studios.tkoh.producto_manager.dto.MovementExcelDTO;
 import studios.tkoh.producto_manager.dto.MovementRequest;
 import studios.tkoh.producto_manager.dto.MovementResponseDTO;
 import studios.tkoh.producto_manager.dto.PersonDTO;
@@ -182,6 +184,27 @@ public class ProductServiceImpl implements ProductService {
                             product.getLastUpdated().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
                     );
                     return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MovementExcelDTO> getMovementReportData() {
+        return movementRepository.findAll(Sort.by(Sort.Direction.DESC, "date")).stream()
+                .map(m -> {
+                    String fecha = m.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+                    String tipo = "IN".equals(m.getType()) ? "ENTRADA" : "SALIDA";
+
+                    return new MovementExcelDTO(
+                            fecha,
+                            tipo,
+                            m.getProduct().getCode(),
+                            m.getProduct().getName(),
+                            m.getQuantity(),
+                            m.getReason(),
+                            m.getReceiverName() != null ? m.getReceiverName() : "-",
+                            m.getReceiverRole() != null ? m.getReceiverRole() : "-"
+                    );
                 })
                 .collect(Collectors.toList());
     }
